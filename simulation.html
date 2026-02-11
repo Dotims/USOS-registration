@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Symulacja Rejestracji USOSweb</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        .usos-ui {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #eee;
+        }
+
+        .strong {
+            font-weight: bold;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- PRZYKŁAD 1: ZMYŁKA (Pierwszy przycisk "Rejestruj", którego nie chcemy kliknąć) -->
+    <div style="background: #ffeebb; padding: 10px; border: 1px solid orange; margin-bottom: 20px;">
+        <h3>To jest zmyłka (Newsletter)</h3>
+        <p>Tutaj jest przycisk który ma ten sam tekst, ale nie jest tym właściwym.</p>
+        <button class="button">Zarejestruj się na newsletter</button>
+    </div>
+
+    <h1>
+        <span class="block">
+            Filozofia (25/26L) [WFAIS.IF-Z003.0]
+        </span>
+    </h1>
+
+    <!-- PRZYKŁAD 2: RADIO BUTTONY (Grupy jako opcje do wyboru) -->
+    <h3>Wybór grupy (Radio Buttons)</h3>
+    <form>
+        <table class="grey" cellspacing="1px">
+            <tr>
+                <th>Wybór</th>
+                <th>Grupa</th>
+                <th>Termin</th>
+            </tr>
+            <tr>
+                <td><input type="radio" name="zajecia[1]" value="1"></td>
+                <td>1</td>
+                <td>Wtorek 12:00</td>
+            </tr>
+            <tr>
+                <td><input type="radio" name="zajecia[1]" value="3"></td>
+                <td>3</td>
+                <td>Środa 14:00 (Nasz cel)</td>
+            </tr>
+            <tr>
+                <td><input type="radio" name="zajecia[1]" value="6"></td>
+                <td>6</td>
+                <td>Piątek 08:00</td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <!-- Właściwy przycisk jest na dole -->
+            <input type="submit" value="Zarejestruj się na zajęcia" class="button"
+                style="font-size: 1.2em; padding: 10px 20px;">
+        </div>
+    </form>
+
+    <hr style="margin: 40px 0;">
+
+    <!-- PRZYKŁAD 3: CHECKBOXY (Stary przykład) -->
+    <h1>
+        <a href="#">Algebra z geometrią MS</a> <span class="note">WFAIS.IF-M005.1</span>
+    </h1>
+
+    <div class="usos-ui">
+        <h1>Symulacja Rejestracji (Test Bota)</h1>
+        <p>Ta strona udaje USOSweb z otwartą rejestracją. Bot powinien zaznaczyć Grupę 3 i kliknąć przycisk (po upływie
+            czasu).</p>
+
+        <div style="margin: 20px 0; padding: 10px; border: 1px solid #aaa; background: #eef;">
+            <h3>Panel Sterowania Symulacją</h3>
+            <button id="addCheckboxes">1. Pokaż Checkboxy (jak o 6:00)</button>
+            <button id="addButton">2. Pokaż Przycisk "Zarejestruj"</button>
+        </div>
+
+        <form name="grupy" action="#" method="POST">
+            <table class="grey">
+                <thead>
+                    <tr>
+                        <th>Wybór</th>
+                        <th>Grupa</th>
+                        <th>Dostępność</th>
+                        <th>Prowadzący</th>
+                        <th>Termin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="checkbox-cell"></td> <!-- Bot szuka input value="1" -->
+                        <td>1</td>
+                        <td>0/15</td>
+                        <td>Dr Kowalski</td>
+                        <td>Wtorek 8:00</td>
+                    </tr>
+                    <tr>
+                        <td class="checkbox-cell"></td>
+                        <td>2</td>
+                        <td>5/15</td>
+                        <td>Mgr Nowak</td>
+                        <td>Środa 10:00</td>
+                    </tr>
+                    <tr class="strong">
+                        <td class="checkbox-cell"></td> <!-- TU JEST GRUPA 3 -->
+                        <td>3</td>
+                        <td>12/15</td>
+                        <td>Prof. Iksiński</td>
+                        <td>Czwartek 12:00</td>
+                    </tr>
+                    <tr>
+                        <td class="checkbox-cell"></td>
+                        <td>4</td>
+                        <td>0/15</td>
+                        <td>Dr Ygrek</td>
+                        <td>Piątek 14:00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div id="button-container" style="margin-top: 20px; text-align: right;">
+                <!-- Tu pojawi się przycisk -->
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('addCheckboxes').onclick = function () {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const groupNum = row.children[1].innerText.trim();
+                const cell = row.children[0];
+                // Symulujemy input USOSowy: name="zajecia[ID][]", value="numer_grupy"
+                cell.innerHTML = `<input type="checkbox" name="zajecia[123][]" value="${groupNum}">`;
+            });
+            alert('Checkboxy dodane! Bot powinien teraz zaznaczyć grupę 3.');
+        };
+
+        document.getElementById('addButton').onclick = function () {
+            const container = document.getElementById('button-container');
+            container.innerHTML = '<input type="submit" id="reg-btn" class="button" value="Zarejestruj (Link)" onclick="this.value=\'KLIKNIĘTO!\'; this.style.background=\'lime\'; console.log(\'BOT_CLICKED\'); return false;">';
+            console.log('Button added');
+        };
+    </script>
+
+</body>
+
+</html>

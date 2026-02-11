@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 320px;
+            padding: 10px;
+            background: #222;
+            color: #fff;
+        }
+
+        h2 {
+            font-size: 16px;
+            margin-top: 0;
+            color: #00d2ff;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+            background: #333;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #00d2ff;
+        }
+
+        button {
+            width: 100%;
+            padding: 8px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #006abc;
+        }
+
+        #status {
+            margin-top: 8px;
+            font-size: 12px;
+            text-align: center;
+            color: lime;
+            height: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Konfiguracja Grup</h2>
+
+    <div class="input-group">
+        <label>Algebra z geometrią MS</label>
+        <input type="number" id="group_algebra" placeholder="Np. 6">
+    </div>
+
+    <div class="input-group">
+        <label>Analiza matematyczna II</label>
+        <input type="number" id="group_analiza" placeholder="Np. 1">
+    </div>
+
+
+
+    <div class="input-group">
+        <label>Język C++</label>
+        <input type="number" id="group_cpp" placeholder="Np. 2">
+    </div>
+
+    <div class="input-group">
+        <label>Matematyka dyskretna</label>
+        <input type="number" id="group_matdysk" placeholder="Np. 3">
+    </div>
+
+
+
+    <div class="input-group">
+        <label>Systemy operacyjne</label>
+        <input type="number" id="group_so" placeholder="Np. 5">
+    </div>
+
+    <div class="input-group">
+        <label>Filozofia</label>
+        <input type="number" id="group_filozofia" placeholder="Np. 3">
+    </div>
+
+    <button id="save">Zapisz ustawienia</button>
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

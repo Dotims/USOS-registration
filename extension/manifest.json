@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "USOS Registration Bot",
+  "version": "1.0",
+  "description": "Automatyczna rejestracja na zajęcia USOSweb.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.usosweb.uj.edu.pl/*",
+    "file:///*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.usosweb.uj.edu.pl/*",
+        "file:///*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
