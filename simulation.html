@@ -44,6 +44,17 @@
 </head>
 
 <body>
+    <!-- PRZYKŁAD 0: ODŚWIEŻ (Symulacja przycisku odświeżania po czasie) -->
+    <div class="flex"
+        style="background: #eee; margin: 0; padding: 0.5rem 1rem; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
+        <button type="submit" class="positive" onclick="location.reload();">
+            <usos-icon icon-name="refresh" tabindex="-1"></usos-icon> odśwież
+        </button>
+        <span style="margin-left: auto;">
+            Tura będzie otwarta <b><span class="countdown">za 2 godz. 45 min.</span></b>
+        </span>
+    </div>
+
     <!-- PRZYKŁAD 1: ZMYŁKA (Pierwszy przycisk "Rejestruj", którego nie chcemy kliknąć) -->
     <div style="background: #ffeebb; padding: 10px; border: 1px solid orange; margin-bottom: 20px;">
         <h3>To jest zmyłka (Newsletter)</h3>

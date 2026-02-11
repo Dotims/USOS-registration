@@ -1,0 +1,20 @@
+
+INSTRUKCJA INSTALACJI "USOS BOT EXTENSION" dla znajomych:
+
+1. Pobierz folder "extension" i rozpakuj go na swoim komputerze (np. na Pulpicie).
+   Ważne: Nie może być spakowany (ZIP). Musisz mieć zwykły folder z plikami w środku.
+
+2. Otwórz przeglądarkę Chrome (lub Edge/Opera/Brave).
+
+3. W pasku adresu wpisz: chrome://extensions/
+   (Lub kliknij w menu -> Więcej narzędzi -> Rozszerzenia).
+
+4. W prawym górnym rogu włącz przełącznik "Tryb dewelopera" (Developer mode).
+
+5. Pojawią się nowe przyciski. Kliknij ten pierwszy: "Załaduj rozpakowane" (Load unpacked).
+
+6. W okienku wybierz ten folder "extension", który rozpakowałeś w pkt 1.
+
+7. Gotowe! Wtyczka powinna pojawić się na pasku ikon (obok paska adresu). Kliknij ikonę "Puzzla", żeby ją przypiąć.
+
+8. Kliknij w ikonę wtyczki i skonfiguruj swoje grupy. Powodzenia!
