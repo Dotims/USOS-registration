@@ -4,10 +4,10 @@
     'use strict';
 
     // --- KONFIGURACJA ---
-    // Ustawienia czasowe
-    const TARGET_HOUR = 5;      
-    const TARGET_MINUTE = 59;     
-    const TARGET_SECOND = 59;     
+    // Ustawienia czasowe (teraz ZMIENNE, ładowane z configu)
+    let TARGET_HOUR = 5;      
+    let TARGET_MINUTE = 59;     
+    let TARGET_SECOND = 59;     
 
     const DEFAULT_GROUP = null; 
     const BUTTON_TEXT_TRIGGERS = ["Zarejestruj", "Zapisz", "Rejestruj", "Dalej", "Wybierz"]; 
@@ -21,28 +21,48 @@
     // Generujemy losowe opóźnienie dla tej konkretnej karty (0 - 400ms)
     // Dzięki temu 5 otwartych kart nie wyśle żądania w TEJ SAMEJ milisekundzie, ale "gęsiego".
     const TAB_RANDOM_DELAY = Math.floor(Math.random() * 401); 
-    const PRE_FIRE_MS = 2000; // Startujemy 2 sekundy PRZED czasem (żeby wstrzelić się idealnie w otwarcie)
     
+    // Konfiguracja precyzyjnych strzałów (Offsety w ms od Godziny "0")
+    // Użytkownik prosił: -500ms, 0ms, +250ms, +750ms
+    const ATTACK_OFFSETS = [-500, 0, 250, 750]; 
+
+    // Refresh: 25 sekund po (6:00:25)
+    // Retry: 45 sekund po (6:00:45) - Opcjonalnie, na razie skupmy się na Refresh
+    const REFRESH_DELAY_MS = 25000; 
+    const PRE_FIRE_MS = 3000; // Aktywujemy logikę 3 sekundy przed, żeby zdążyć zakolejkować timery
+
     let targetButton = null;
     let groupCheckbox = null;
     let groupRow = null;
     let burstActive = false;
+    let refreshClicked = false;
     let statusPanel = null;
+    let detectedRefreshButton = null;
 
     // --- ŁADOWANIE KONFIGURACJI ---
     function loadConfig() {
         if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-            chrome.storage.local.get(['courses_config'], (result) => {
+            chrome.storage.local.get(['courses_config', 'timer_config'], (result) => {
                 if (result.courses_config) {
                     configMap = result.courses_config;
                     log("Config loaded: " + JSON.stringify(configMap));
                     detectCourseContext(); 
-                    updateStatusPanel();
                 }
+                if (result.timer_config) {
+                    TARGET_HOUR = parseInt(result.timer_config.h);
+                    TARGET_MINUTE = parseInt(result.timer_config.m);
+                    TARGET_SECOND = parseInt(result.timer_config.s);
+                    log(`Timer loaded: ${TARGET_HOUR}:${TARGET_MINUTE}:${TARGET_SECOND}`);
+                }
+                updateStatusPanel();
             });
         }
     }
     
+    // Nasłuchiwanie na wiadomości z popupu (Testowanie)
+    // Nasłuchiwanie na wiadomości z popupu (Testowanie) - USUNIĘTE na prośbę użytkownika
+    // (Kod testowy usunięty)
+
     function resetState() {
         log("Resetting state...");
         // Czyść style starego checkboxa
@@ -65,13 +85,22 @@
 
     // Nasłuchiwanie na zmiany w storage (jak użytkownik zmieni w popupie w trakcie bycia na stronie)
     chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace === 'local' && changes.courses_config) {
-            configMap = changes.courses_config.newValue;
-            log("Config updated dynamically.");
-            
-            resetState(); // <--- WAŻNE: Czyścimy stare zaznaczenia!
-            
-            detectCourseContext();
+        if (namespace === 'local') {
+            if (changes.courses_config) {
+                configMap = changes.courses_config.newValue;
+                log("Config updated dynamically.");
+                
+                resetState(); // <--- WAŻNE: Czyścimy stare zaznaczenia!
+                
+                detectCourseContext();
+            }
+            if (changes.timer_config) {
+                const t = changes.timer_config.newValue;
+                TARGET_HOUR = parseInt(t.h);
+                TARGET_MINUTE = parseInt(t.m);
+                TARGET_SECOND = parseInt(t.s);
+                log(`Timer updated dynamically: ${TARGET_HOUR}:${TARGET_MINUTE}:${TARGET_SECOND}`);
+            }
             updateStatusPanel();
         }
     });
@@ -248,43 +277,52 @@
         el.dataset.botHighlight = 'true';
     }
 
-    function executeBurstClick(btn) {
+    function executePrecisionAttack(btn) {
         if (burstActive) return;
         burstActive = true;
         
-        log(`!!! BURST CLICK START (Lag: ${TAB_RANDOM_DELAY}ms) !!!`);
-        let clicks = 0;
-        // Zwiększamy ilość kliknięć, bo startujemy 2 sekundy wcześniej
-        const totalClicks = 40; // 40 kliknięć
-        const intervalTime = 150; // Bardzo szybko: co 150ms
-        
-        // Funkcja klikająca (z interwałem)
-        const startBurst = () => {
-             btn.click(); 
-             clicks++;
-             log(`Click #${clicks} (Initial)`);
-             
-             const interval = setInterval(() => {
-                if (clicks >= totalClicks) {
-                    clearInterval(interval);
-                    log("End of burst.");
-                    return;
-                }
-                if (document.body.contains(btn)) {
-                    btn.click();
-                    clicks++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, intervalTime);
-        };
+        log(`!!! PRECISE ATTACK ARMED !!!`);
 
-        // Opóźnienie startu (lag dla tej karty)
-        if (TAB_RANDOM_DELAY > 0) {
-            setTimeout(startBurst, TAB_RANDOM_DELAY);
-        } else {
-            startBurst();
-        }
+        // Obliczamy dokładny czas "Godziny 0"
+        const now = new Date();
+        const targetTime = new Date();
+        targetTime.setHours(TARGET_HOUR, TARGET_MINUTE, TARGET_SECOND, 0);
+        if (now - targetTime > 3600000) targetTime.setDate(targetTime.getDate() + 1);
+
+        // Kolejkujemy strzały (Tylko jeden strzał po 0.5s)
+        // +500ms
+        const ATTACK_OFFSETS = [500]; 
+
+        ATTACK_OFFSETS.forEach((offset, updateIndex) => {
+            const fireTime = new Date(targetTime.getTime() + offset);
+            const delay = fireTime - now;
+
+            if (delay > 0) {
+                setTimeout(() => {
+                    log(`⚡ CLICK #${updateIndex + 1} (Offset: ${offset}ms)`);
+                    
+                    // Wizualizacja "Strzału"
+                    if (btn) {
+                        btn.style.border = "15px solid #9400D3"; 
+                        btn.style.backgroundColor = "#9400D3";
+                        btn.style.color = "white";
+                        btn.click();
+                        
+                        // Reset wizualizacji po chwili
+                        setTimeout(() => {
+                            if(btn) {
+                                btn.style.border = "4px solid #9400D3"; 
+                                btn.style.backgroundColor = ""; 
+                                btn.style.color = "";
+                            }
+                        }, 100);
+                    }
+
+                }, delay);
+            } else {
+                log(`Skipped missed shot at offset ${offset}ms`);
+            }
+        });
     }
 
     // --- Wyszukiwanie Elementów ---
@@ -377,14 +415,95 @@
                     }
                 });
                 
-                highlightElement(targetButton, "red");
+                // --- POKAZUJEMY "WIDZĘ CIĘ" (FIOLET 4px DLA REJESTRACJI) ---
+                targetButton.style.border = "4px solid #9400D3"; 
+                targetButton.style.boxShadow = "0 0 10px #9400D3";
+                targetButton.style.transition = "all 0.1s"; 
+                targetButton.dataset.botHighlight = 'true';
             }
         }
     }
 
-    function checkTimeAndAct() {
-        if (burstActive || !targetGroupNumber) return;
+    function findRefreshButton() {
+        // Independent of targetGroupNumber (works without config)
+        
+        let btn = document.querySelector('button[onclick*="location.reload"]');
 
+        if (!btn) {
+            // Check for USOS icon (user provided HTML structure)
+            const icon = document.querySelector('usos-icon[icon-name="refresh"]');
+            if (icon) {
+                btn = icon.closest('button');
+            }
+        }
+
+        if (!btn) {
+             const buttons = document.querySelectorAll('button');
+             for (let b of buttons) {
+                if ((b.innerText || "").toLowerCase().includes("odśwież")) {
+                    btn = b;
+                    break;
+                }
+            }
+        }
+
+        if (btn !== detectedRefreshButton) {
+            detectedRefreshButton = btn;
+            if (detectedRefreshButton) {
+                // Persistent Visual Feedback (I SEE YOU)
+                detectedRefreshButton.style.border = "4px solid #9400D3"; // DarkViolet
+                detectedRefreshButton.style.boxShadow = "0 0 10px #9400D3";
+                detectedRefreshButton.style.transition = "all 0.1s"; 
+                log("Found potential Refresh Button");
+            }
+        }
+        return detectedRefreshButton;
+    }
+
+    function tryRefreshAndRetry() {
+        if (refreshClicked) return; 
+
+        // Zabezpieczenie przed pętlą odświeżania (SessionStorage)
+        // Klucz unikalny dla danej minuty (np. "usos_refreshed_5_59")
+        // Dzięki temu resetuje się automatycznie jak zmienisz czas w configu
+        const storageKey = `usos_refreshed_${TARGET_HOUR}_${TARGET_MINUTE}`;
+        if (sessionStorage.getItem(storageKey) === 'true') {
+            log("Refresh skipped (Already refreshed in this session/minute).");
+            refreshClicked = true; // Zablokuj lokalnie też
+            return;
+        }
+
+        // Ensure we have the button
+        let btnToClick = detectedRefreshButton || findRefreshButton();
+
+        if (btnToClick) {
+            log("!!! EMERGENCY REFRESH TRIGGERED (25s mark) !!!");
+            refreshClicked = true;
+            sessionStorage.setItem(storageKey, 'true'); // Znacznik że już odświeżyliśmy
+            
+            // Visual Feedback on Click (ACTION!)
+            btnToClick.style.border = "15px solid #9400D3"; // EXPLOSION
+            btnToClick.style.backgroundColor = "#9400D3";
+            btnToClick.style.color = "white";
+            btnToClick.innerText = "KLIKAM... 🔄";
+            
+            if(statusPanel) {
+                const btnStatus = statusPanel.querySelector('#bot-status-btn');
+                if(btnStatus) {
+                    btnStatus.innerHTML = "ODŚWIEŻAM... 🔄";
+                    btnStatus.style.color = "#9400D3";
+                    btnStatus.style.fontWeight = "bold";
+                }
+            }
+
+            btnToClick.click();
+        } else {
+            log("Test Refresh: Button not found (yet).");
+        }
+    }
+
+    function checkTimeAndAct() {
+        // Refresh logic is independent of group config (mostly)
         const now = new Date();
         const targetTime = new Date();
         targetTime.setHours(TARGET_HOUR, TARGET_MINUTE, TARGET_SECOND, 0);
@@ -393,15 +512,23 @@
              targetTime.setDate(targetTime.getDate() + 1);
         }
 
-        // Startujemy wcześniej (PRE_FIRE_MS)
         const effectiveStartTime = new Date(targetTime.getTime() - PRE_FIRE_MS);
+        const refreshTime = new Date(targetTime.getTime() + REFRESH_DELAY_MS); // +25s
+
+        // Jeśli minęły 25 sekundy po idealnym czasie (i nie kliknęliśmy jeszcze odśwież)
+        if (now >= refreshTime && !refreshClicked) {
+            tryRefreshAndRetry();
+        }
+
+        // Registration logic requires group config
+        if (!targetGroupNumber) return;
         
         if (now >= effectiveStartTime) {
             const diff = now - targetTime;
-            if (diff < 15000) { 
-                if (targetButton) {
-                    executeBurstClick(targetButton);
-                    // targetButton = null; 
+            // Okno aktywne (trwa krótko po czasie zero, -3s do +10s)
+            if (diff < 10000) {
+                if (targetButton && !burstActive) {
+                     executePrecisionAttack(targetButton);
                 }
             }
         }
@@ -415,6 +542,7 @@
         detectCourseContext(); 
         findAndSelectGroup();
         findRegistrationButton();
+        findRefreshButton(); 
         checkTimeAndAct();
         updateStatusPanel();
     }, 50);

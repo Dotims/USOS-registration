@@ -109,7 +109,24 @@
         <input type="number" id="group_filozofia" placeholder="Np. 3">
     </div>
 
+    <h2>Ustawienia Czasu (HH:MM:SS)</h2>
+    <div style="display: flex; gap: 5px;">
+        <div style="flex: 1;">
+            <label style="text-align:center">Godz</label>
+            <input type="number" id="target_hour" placeholder="5" min="0" max="23">
+        </div>
+        <div style="flex: 1;">
+            <label style="text-align:center">Min</label>
+            <input type="number" id="target_minute" placeholder="59" min="0" max="59">
+        </div>
+        <div style="flex: 1;">
+            <label style="text-align:center">Sek</label>
+            <input type="number" id="target_second" placeholder="59" min="0" max="59">
+        </div>
+    </div>
+
     <button id="save">Zapisz ustawienia</button>
+
     <div id="status"></div>
 
     <script src="popup.js"></script>

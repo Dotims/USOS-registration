@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', restoreOptions);
 document.getElementById('save').addEventListener('click', saveOptions);
 
+
+
 const KEYS = {
     'group_algebra': 'Algebra z geometrią MS',
     'group_analiza': 'Analiza matematyczna II',
@@ -20,22 +22,27 @@ function saveOptions() {
       }
   }
 
-  chrome.storage.local.set({ 'courses_config': settings }, () => {
+  // Zapisz czas
+  const timer = {
+      h: document.getElementById('target_hour').value || 5,
+      m: document.getElementById('target_minute').value || 59,
+      s: document.getElementById('target_second').value || 59
+  };
+
+  chrome.storage.local.set({ 
+      'courses_config': settings,
+      'timer_config': timer
+  }, () => {
     const status = document.getElementById('status');
-    status.textContent = 'Zapisano!';
+    status.textContent = 'Zapisano! (Czas: ' + timer.h + ':' + timer.m + ':' + timer.s + ')';
     setTimeout(() => {
       status.textContent = '';
-    }, 1500);
-    
-    // Odśwież aktywną kartę, żeby bot załapał zmiany od razu (opcjonalne)
-    // chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    //    chrome.tabs.reload(tabs[0].id);
-    // });
+    }, 2500);
   });
 }
 
 function restoreOptions() {
-  chrome.storage.local.get(['courses_config'], (result) => {
+  chrome.storage.local.get(['courses_config', 'timer_config'], (result) => {
       const config = result.courses_config || {};
       for (const id in KEYS) {
           const courseName = KEYS[id];
@@ -43,5 +50,10 @@ function restoreOptions() {
               document.getElementById(id).value = config[courseName];
           }
       }
+      
+      const timer = result.timer_config || { h: 5, m: 59, s: 59 };
+      document.getElementById('target_hour').value = timer.h;
+      document.getElementById('target_minute').value = timer.m;
+      document.getElementById('target_second').value = timer.s;
   });
 }
