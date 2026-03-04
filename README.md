@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ USOS Registration Sniper
+# ⚡ USOS Registration
 
 ### Never lose a course seat again.
 
