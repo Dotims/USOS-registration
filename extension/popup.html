@@ -1,133 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
 
 <head>
     <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            width: 320px;
-            padding: 10px;
-            background: #222;
-            color: #fff;
-        }
-
-        h2 {
-            font-size: 16px;
-            margin-top: 0;
-            color: #00d2ff;
-            border-bottom: 1px solid #444;
-            padding-bottom: 8px;
-        }
-
-        .input-group {
-            margin-bottom: 12px;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 6px;
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 4px;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #00d2ff;
-        }
-
-        button {
-            width: 100%;
-            padding: 8px;
-            background: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: #006abc;
-        }
-
-        #status {
-            margin-top: 8px;
-            font-size: 12px;
-            text-align: center;
-            color: lime;
-            height: 16px;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
-    <h2>Konfiguracja Grup</h2>
-
-    <div class="input-group">
-        <label>Algebra z geometrią MS</label>
-        <input type="number" id="group_algebra" placeholder="Np. 6">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-icon">⚡</div>
+        <h1>USOS Registration Bot</h1>
+        <p>Konfiguracja automatycznej rejestracji</p>
     </div>
 
-    <div class="input-group">
-        <label>Analiza matematyczna II</label>
-        <input type="number" id="group_analiza" placeholder="Np. 1">
-    </div>
+    <!-- Courses Section -->
+    <div class="section">
+        <div class="section-title">📚 Przedmioty</div>
 
-
-
-    <div class="input-group">
-        <label>Język C++</label>
-        <input type="number" id="group_cpp" placeholder="Np. 2">
-    </div>
-
-    <div class="input-group">
-        <label>Matematyka dyskretna</label>
-        <input type="number" id="group_matdysk" placeholder="Np. 3">
-    </div>
-
-
-
-    <div class="input-group">
-        <label>Systemy operacyjne</label>
-        <input type="number" id="group_so" placeholder="Np. 5">
-    </div>
-
-    <div class="input-group">
-        <label>Filozofia</label>
-        <input type="number" id="group_filozofia" placeholder="Np. 3">
-    </div>
-
-    <h2>Ustawienia Czasu (HH:MM:SS)</h2>
-    <div style="display: flex; gap: 5px;">
-        <div style="flex: 1;">
-            <label style="text-align:center">Godz</label>
-            <input type="number" id="target_hour" placeholder="5" min="0" max="23">
+        <div class="add-course-form">
+            <div class="input-wrapper">
+                <input type="text" id="new-course-name" class="input-field" placeholder="Nazwa przedmiotu">
+            </div>
+            <div class="input-wrapper group-input">
+                <input type="number" id="new-course-group" class="input-field" placeholder="Grupa" min="1">
+            </div>
+            <button class="btn-add" id="btn-add-course" title="Dodaj przedmiot">+</button>
         </div>
-        <div style="flex: 1;">
-            <label style="text-align:center">Min</label>
-            <input type="number" id="target_minute" placeholder="59" min="0" max="59">
+
+        <div class="courses-list" id="courses-list">
+            <!-- Dynamic course cards will be inserted here -->
         </div>
-        <div style="flex: 1;">
-            <label style="text-align:center">Sek</label>
-            <input type="number" id="target_second" placeholder="59" min="0" max="59">
+
+        <div class="empty-state" id="empty-state">
+            <div class="icon">📭</div>
+            Brak przedmiotów.<br>Dodaj przedmiot powyżej, wpisując nazwę i numer grupy.
         </div>
     </div>
 
-    <button id="save">Zapisz ustawienia</button>
+    <!-- Time Config Section -->
+    <div class="section">
+        <div class="section-title">⏱️ Czas rejestracji</div>
 
-    <div id="status"></div>
+        <div class="time-row">
+            <div class="time-slot">
+                <label>Godz</label>
+                <input type="number" id="target_hour" class="input-field" placeholder="5" min="0" max="23">
+            </div>
+            <div class="time-colon">:</div>
+            <div class="time-slot">
+                <label>Min</label>
+                <input type="number" id="target_minute" class="input-field" placeholder="59" min="0" max="59">
+            </div>
+            <div class="time-colon">:</div>
+            <div class="time-slot">
+                <label>Sek</label>
+                <input type="number" id="target_second" class="input-field" placeholder="59" min="0" max="59">
+            </div>
+        </div>
+    </div>
+
+    <!-- Save -->
+    <button class="btn-save" id="save">💾 Zapisz ustawienia</button>
+    <div class="status-bar" id="status"></div>
+
+    <!-- Footer -->
+    <div class="footer">USOS Registration Bot • v1.0</div>
 
     <script src="popup.js"></script>
 </body>
