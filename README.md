@@ -1,10 +1,8 @@
 <div align="center">
 
-<<<<<<< HEAD
+
 # ⚡ USOS Registration Bot
-=======
-# ⚡ USOS Registration
->>>>>>> 9ac49cc157ab0ca7096672cc9b68a3d5fdb4710e
+
 
 ### Secure your preferred course groups — automatically.
 
